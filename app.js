@@ -5,7 +5,7 @@ const hoursContainer = document.getElementById("hours");
 const dayDisplay = document.getElementById("currentDay");
 const view = document.getElementById("view");
 
-// ---- Chaldean day rulers ----
+// ---- Chaldean day rulers (Sunday=0) ----
 const DAY_RULERS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
 // ---- Save/load location ----
@@ -15,13 +15,23 @@ function saveLocation(lat, lon, city = "") {
 
 function loadLocation() {
   const loc = localStorage.getItem("location");
-  return loc ? JSON.parse(loc) : null;
+  if (!loc) return null;
+  try {
+    const data = JSON.parse(loc);
+    if (data.lat != null && data.lon != null) return { lat: parseFloat(data.lat), lon: parseFloat(data.lon), city: data.city || "" };
+  } catch (err) {
+    console.error("Error parsing location:", err);
+  }
+  return null;
 }
 
-// ---- Prompt user for location ----
+// ---- Prompt user for location (with safe USA assumption) ----
 async function promptLocation() {
-  const input = prompt("Enter your city, state, and country (e.g., New York, NY, USA):");
+  let input = prompt("Enter your city and state (and optionally country), e.g., 'New York, NY' or 'London, UK':");
   if (!input) return;
+
+  // If user only types city/state, assume USA
+  if (!input.match(/,.*$/)) input += ", USA";
 
   try {
     const response = await fetch(
@@ -34,31 +44,33 @@ async function promptLocation() {
       }
     );
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
     const data = await response.json();
-
     if (!data || data.length === 0) {
-      alert("Location not found. Please try again.");
+      alert("Location not found. Try a more specific city/state.");
       return;
     }
 
     const lat = parseFloat(data[0].lat);
     const lon = parseFloat(data[0].lon);
-    saveLocation(lat, lon, input);
+    const cityName = data[0].display_name || input;
+    saveLocation(lat, lon, cityName);
+
     render();
   } catch (err) {
-    console.error("Location fetch failed:", err);
-    alert("Error retrieving location. Check your internet connection.");
+    console.error("Location fetch error:", err);
+    alert("Error retrieving location. Check your internet connection or try again later.");
   }
 }
 
 // ---- Render planetary hours ----
 function render() {
+  if (!hoursContainer) return;
   hoursContainer.innerHTML = "";
 
   const location = loadLocation();
   if (!location) {
-    dayDisplay.textContent = "No location set. Click 'Update Location'.";
+    if (dayDisplay) dayDisplay.textContent = "No location set. Click 'Update Location'.";
     return;
   }
 
@@ -66,18 +78,26 @@ function render() {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dayRuler = DAY_RULERS[today.getDay()];
 
-  dayDisplay.textContent = `Day ruler: ${dayRuler} | Location: ${location.city || "Unknown"}`;
+  if (dayDisplay) dayDisplay.textContent = `Day ruler: ${dayRuler} | Location: ${location.city || "Unknown"}`;
 
-  const sunTimes = getSunTimes(today, location.lat, location.lon);
+  let sunTimes;
+  try {
+    sunTimes = getSunTimes(today, location.lat, location.lon);
+  } catch (e) {
+    console.error("Error calculating sunrise/sunset:", e);
+    alert("Could not calculate sunrise/sunset for this location.");
+    return;
+  }
+
   const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
 
-  // Load natal data
+  // Load natal data safely
   let natal = null;
   try {
     const natalRaw = localStorage.getItem("birthData");
     if (natalRaw) natal = JSON.parse(natalRaw);
   } catch (e) {
-    console.warn("Invalid birthData:", e);
+    console.warn("Invalid natal data:", e);
   }
 
   hours.forEach(h => {
@@ -88,14 +108,25 @@ function render() {
 
     div.style.borderColor = h.planet.color;
 
-    const zodiac = getPlanetZodiac(h.planet.name, now);
+    // Zodiac
+    let zodiac = { name: "Unknown", symbol: "" };
+    try {
+      zodiac = getPlanetZodiac(h.planet.name, now);
+    } catch (e) {
+      console.warn(`Could not get zodiac for ${h.planet.name}:`, e);
+    }
 
+    // Natal resonance
     let natalMatch = false;
     if (natal && natal.date && natal.time) {
-      const natalDate = new Date(`${natal.date}T${natal.time}`);
-      const natalLongs = planetLongitudes(natalDate);
-      const natalZodiac = getZodiacFromLongitude(natalLongs[h.planet.name]);
-      natalMatch = natalZodiac.name === zodiac.name;
+      try {
+        const natalDate = new Date(`${natal.date}T${natal.time}`);
+        const natalLongs = planetLongitudes(natalDate);
+        const natalZodiac = getZodiacFromLongitude(natalLongs[h.planet.name]);
+        natalMatch = natalZodiac.name === zodiac.name;
+      } catch (e) {
+        console.warn("Error computing natal resonance:", e);
+      }
     }
 
     const dignity = getDignity(h.planet.name, zodiac.name);
@@ -115,7 +146,7 @@ function render() {
   });
 }
 
-// ---- Navigation buttons ----
+// ---- Navigation ----
 function setupNavigation() {
   const navMap = {
     btnMain: "main.html",
@@ -140,11 +171,10 @@ function setupNavigation() {
 setupNavigation();
 render();
 
-// Only prompt user if no location is saved
 if (!loadLocation()) {
-  // Prompt after short timeout to avoid popup block
+  // Slight delay to avoid popup block
   setTimeout(promptLocation, 500);
 }
 
-// Refresh every minute
+// Refresh planetary hours every minute
 setInterval(render, 60000);
