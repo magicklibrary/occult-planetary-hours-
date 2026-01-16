@@ -14,39 +14,30 @@ function render() {
   const sunTimes = getSunTimes(today, location.lat, location.lon);
   const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
 
- hours.forEach(h => {
-  const div = document.createElement("div");
-  div.className = "hour";
+const zodiac = getPlanetZodiac(h.planet.name, now);
 
-  const isActive = now >= h.start && now < h.end;
-  if (isActive) div.classList.add("active");
+let natalMatch = false;
+const natalRaw = localStorage.getItem("birthData");
 
-  const zodiac = getPlanetZodiac(h.planet.name, now);
+if (natalRaw) {
+  const natal = JSON.parse(natalRaw);
+  const natalDate = new Date(natal.date + "T" + natal.time);
+  const natalLongs = planetLongitudes(natalDate);
+  const natalZodiac = getZodiacFromLongitude(natalLongs[h.planet.name]);
 
-  div.style.borderColor = h.planet.color;
-
-  div.innerHTML = `
-    <strong style="color:${h.planet.color}">
-      ${h.planet.symbol} ${h.planet.name}
-    </strong><br>
-    ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
-    <div class="zodiac">
-      ${zodiac.symbol} ${zodiac.name}
-    </div>
-  `;
-
-  hoursContainer.appendChild(div);
-});
-    div.innerHTML = `
-      <strong style="color:${h.planet.color}">
-        ${h.planet.symbol} ${h.planet.name}
-      </strong><br>
-      ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
-    `;
-
-    hoursContainer.appendChild(div);
-  });
+  natalMatch = natalZodiac.name === zodiac.name;
 }
+div.innerHTML = `
+  <strong style="color:${h.planet.color}">
+    ${h.planet.symbol} ${h.planet.name}
+  </strong><br>
+  ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
+  <div class="zodiac">
+    ${zodiac.symbol} ${zodiac.name}
+    ${natalMatch ? "<div>Resonant with natal chart</div>" : ""}
+  </div>
+`;
+
 
 document.getElementById("saveLocation").onclick = () => {
   const lat = parseFloat(document.getElementById("latitude").value);
