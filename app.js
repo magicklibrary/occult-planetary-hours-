@@ -97,4 +97,17 @@ document.getElementById("saveLocation").onclick = () => {
   });
 }
 setInterval(render, 60000);
+const view = document.getElementById("view");
+
+function openMain() {
+  view.src = "main.html";
+}
+
+function openSettings() {
+  view.src = "settings.html";
+}
+
+function openInstructions() {
+  view.src = "instructions.html";
+}
 
