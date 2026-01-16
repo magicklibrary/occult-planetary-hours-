@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>Birth Data</h2>
+
+<label>Date of birth</label><br>
+<input id="birthDate" type="date"><br><br>
+
+<label>Time of birth</label><br>
+<input id="birthTime" type="time"><br><br>
+
+<label>Birth latitude</label><br>
+<input id="birthLat" type="number"><br><br>
+
+<label>Birth longitude</label><br>
+<input id="birthLon" type="number"><br><br>
+
+<button onclick="saveBirth()">Save</button>
+
+<script>
+function saveBirth() {
+  const data = {
+    date: document.getElementById("birthDate").value,
+    time: document.getElementById("birthTime").value,
+    lat: document.getElementById("birthLat").value,
+    lon: document.getElementById("birthLon").value
+  };
+  localStorage.setItem("birthData", JSON.stringify(data));
+  alert("Saved");
+}
+</script>
+
+</body>
+</html>
