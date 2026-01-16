@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>Natal Chart</h2>
+
+<div id="natalChart"></div>
+
+<script src="ephemeris.js"></script>
+<script src="zodiac.js"></script>
+
+<script>
+function loadNatal() {
+  const raw = localStorage.getItem("birthData");
+  if (!raw) {
+    document.getElementById("natalChart").innerText = "No birth data saved";
+    return;
+  }
+
+  const data = JSON.parse(raw);
+  const dateTime = new Date(data.date + "T" + data.time);
+
+  const longs = planetLongitudes(dateTime);
+  const container = document.getElementById("natalChart");
+
+  Object.keys(longs).forEach(name => {
+    const zodiac = getZodiacFromLongitude(longs[name]);
+    const div = document.createElement("div");
+    div.innerHTML = name + " " + zodiac.symbol + " " + zodiac.name;
+    container.appendChild(div);
+  });
+}
+
+loadNatal();
+</script>
+
+</body>
+</html>
