@@ -3,32 +3,42 @@ const hoursContainer = document.getElementById("hours");
 const dayDisplay = document.getElementById("currentDay");
 const view = document.getElementById("view");
 
-// Main render loop
-async function promptLocation() {
-  let location = loadLocation();
-  if (!location) {
-    let input = prompt("Enter your city, state, and country (e.g., New York, NY, USA):");
-    if (!input) return;
+// Save location in localStorage
+function saveLocation(lat, lon, cityName = "") {
+  localStorage.setItem("location", JSON.stringify({ lat, lon, city: cityName }));
+}
 
-    // Fetch coordinates from a geocoding API
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`);
-      const data = await response.json();
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        saveLocation(lat, lon); // store in localStorage
-        render(); // refresh the display
-      } else {
-        alert("Could not find location. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error retrieving location. Check your internet connection.");
+// Load location from localStorage
+function loadLocation() {
+  const loc = localStorage.getItem("location");
+  return loc ? JSON.parse(loc) : null;
+}
+
+// Prompt user for city/state/country and geocode it
+async function promptLocation() {
+  let input = prompt("Enter your city, state, and country (e.g., New York, NY, USA):");
+  if (!input) return;
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`
+    );
+    const data = await response.json();
+    if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lon = parseFloat(data[0].lon);
+      saveLocation(lat, lon, input); // store city too
+      render(); // refresh planetary hours and all dependent data
+    } else {
+      alert("Could not find location. Please try again.");
     }
+  } catch (err) {
+    console.error(err);
+    alert("Error retrieving location. Check your internet connection.");
   }
 }
 
+// Main render loop
 function render() {
   hoursContainer.innerHTML = "";
 
@@ -39,7 +49,7 @@ function render() {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dayRuler = DAY_RULERS[today.getDay()];
 
-  dayDisplay.textContent = "Day ruler: " + dayRuler;
+  dayDisplay.textContent = `Day ruler: ${dayRuler} | Location: ${location.city || "Unknown"}`;
 
   // Compute sunrise/sunset and planetary hours
   const sunTimes = getSunTimes(today, location.lat, location.lon);
@@ -73,49 +83,4 @@ function render() {
     }
 
     // Dignity and strength
-    const dignity = getDignity(h.planet.name, zodiac.name);
-    const strength = getHourStrength(h.planet.name, zodiac.name, natalMatch);
-
-    // Render HTML
-    div.innerHTML = `
-      <strong style="color:${h.planet.color}">
-        ${h.planet.symbol} ${h.planet.name}
-      </strong><br>
-      ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
-      <div class="zodiac">
-        ${zodiac.symbol} ${zodiac.name}<br>
-        Dignity: ${dignity}<br>
-        Strength: ${strength}<br>
-        ${natalMatch ? "<div>Resonant with natal chart</div>" : ""}
-      </div>
-    `;
-
-    hoursContainer.appendChild(div);
-  });
-}
-
-// Save user location
-document.getElementById("saveLocation").onclick = () => {
-  const lat = parseFloat(document.getElementById("latitude").value);
-  const lon = parseFloat(document.getElementById("longitude").value);
-  if (!isNaN(lat) && !isNaN(lon)) {
-    saveLocation(lat, lon);
-    render(); // refresh display immediately
-  }
-};
-
-// Refresh planetary hours every minute
-setInterval(render, 60000);
-promptLocation(); // ask user for location if not stored
-render();
-setInterval(render, 60000); // refresh every minute
-render(); // initial render
-
-// Navigation functions
-function openMain() { view.src = "main.html"; }
-function openSettings() { view.src = "settings.html"; }
-function openInstructions() { view.src = "instructions.html"; }
-function openNatal() { view.src = "natal.html"; }
-function openGuidance() { view.src = "guidance.html"; }
-function openElectional() { view.src = "electional.html"; }
-function openLegend() { view.src = "legend.html"; }
+    const dignity = getDignity(h.planet
