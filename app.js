@@ -4,6 +4,31 @@ const dayDisplay = document.getElementById("currentDay");
 const view = document.getElementById("view");
 
 // Main render loop
+async function promptLocation() {
+  let location = loadLocation();
+  if (!location) {
+    let input = prompt("Enter your city, state, and country (e.g., New York, NY, USA):");
+    if (!input) return;
+
+    // Fetch coordinates from a geocoding API
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        saveLocation(lat, lon); // store in localStorage
+        render(); // refresh the display
+      } else {
+        alert("Could not find location. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error retrieving location. Check your internet connection.");
+    }
+  }
+}
+
 function render() {
   hoursContainer.innerHTML = "";
 
