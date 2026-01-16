@@ -37,8 +37,21 @@ div.innerHTML = `
     ${natalMatch ? "<div>Resonant with natal chart</div>" : ""}
   </div>
 `;
+const dignity = getDignity(h.planet.name, zodiac.name);
+const strength = getHourStrength(h.planet.name, zodiac.name, natalMatch);
 
-
+div.innerHTML = `
+  <strong style="color:${h.planet.color}">
+    ${h.planet.symbol} ${h.planet.name}
+  </strong><br>
+  ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
+  <div class="zodiac">
+    ${zodiac.symbol} ${zodiac.name}
+    <div>Dignity: ${dignity}</div>
+    <div>Strength: ${strength}</div>
+    ${natalMatch ? "<div>Resonant with natal chart</div>" : ""}
+  </div>
+`;
 document.getElementById("saveLocation").onclick = () => {
   const lat = parseFloat(document.getElementById("latitude").value);
   const lon = parseFloat(document.getElementById("longitude").value);
