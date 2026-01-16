@@ -42,3 +42,16 @@ button {
   margin-bottom: 5px;
   border: 1px solid white;
 }
+.hour.active {
+  background: white;
+  color: black;
+}
+
+.hour.active strong {
+  color: black;
+}
+
+.zodiac {
+  font-size: 1.2em;
+  margin-top: 4px;
+}
