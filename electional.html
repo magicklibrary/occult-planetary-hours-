@@ -7,7 +7,8 @@
     body { font-family: sans-serif; background: black; color: white; margin: 20px; }
     h2 { text-align: center; margin-bottom: 16px; }
     .hour-bar { display: flex; margin: 4px 0; }
-    .hour-segment { flex: 1; padding: 8px; text-align: center; border-radius: 4px; color: black; font-weight: bold; }
+    .hour-segment { flex: 1; padding: 8px; text-align: center; border-radius: 4px; font-weight: bold; }
+    .current { border: 2px solid #FFD700; }
   </style>
 </head>
 <body>
@@ -19,23 +20,33 @@
 <script src="zodiac.js"></script>
 <script src="planetary.js"></script>
 <script src="dignity.js"></script>
-<script src="storage.js"></script> <!-- Make sure this defines loadLocation() -->
+<script src="storage.js"></script>
 
 <script>
-(async function() {
+async function loadElectionalHours() {
   const container = document.getElementById("electional");
-  container.innerHTML = ""; // Clear loading text
+  container.innerHTML = "Loading...";
 
+  // Load location
   const location = loadLocation();
   if (!location) {
-    container.innerText = "No location set.";
+    container.innerText = "No location set. Click 'Update Location' in main page.";
     return;
   }
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dayRuler = DAY_RULERS[today.getDay()];
-  const sunTimes = getSunTimes(today, location.lat, location.lon);
+  const dayRuler = DAY_RULERS[today.getDay()] || "Sun";
+
+  let sunTimes;
+  try {
+    sunTimes = getSunTimes(today, location.lat, location.lon);
+  } catch (err) {
+    console.error("Error computing sun times:", err);
+    container.innerText = "Error computing sunrise/sunset for your location.";
+    return;
+  }
+
   const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
 
   if (!hours || hours.length === 0) {
@@ -43,36 +54,57 @@
     return;
   }
 
+  container.innerHTML = "";
+
+  // Load natal data once
+  let natal = null;
+  try {
+    const natalRaw = localStorage.getItem("birthData");
+    if (natalRaw) natal = JSON.parse(natalRaw);
+  } catch (err) {
+    console.warn("Invalid natal data:", err);
+  }
+
   hours.forEach(h => {
-    // Ensure h.start is a Date object
     if (!(h.start instanceof Date)) h.start = new Date(h.start);
-    
+
     const zodiac = getPlanetZodiac(h.planet.name, h.start);
 
     // Natal resonance
-    const natalRaw = localStorage.getItem("birthData");
     let natalMatch = false;
-    if (natalRaw) {
-      const natal = JSON.parse(natalRaw);
-      const natalLongs = planetLongitudes(new Date(`${natal.date}T${natal.time}`));
-      natalMatch = getZodiacFromLongitude(natalLongs[h.planet.name]).name === zodiac.name;
+    if (natal && natal.date && natal.time) {
+      const natalDate = new Date(`${natal.date}T${natal.time}`);
+      const natalLongs = planetLongitudes(natalDate);
+      const natalZodiac = getZodiacFromLongitude(natalLongs[h.planet.name]);
+      natalMatch = natalZodiac.name === zodiac.name;
     }
 
+    // Compute strength for visualization
     const strength = getHourStrength(h.planet.name, zodiac.name, natalMatch);
-    const alpha = Math.min(0.9, 0.1 + strength / 5); // keep alpha < 1 for better visibility
+    const alpha = Math.min(0.9, 0.1 + strength / 5); // opacity based on strength
 
     const div = document.createElement("div");
     div.className = "hour-bar";
+
+    // Highlight current hour
+    if (now >= h.start && now < h.end) div.classList.add("current");
+
     div.innerHTML = `
       <div class="hour-segment" style="background-color: rgba(255,255,255,${alpha}); color: ${h.planet.color}">
-        ${h.planet.symbol} ${h.planet.name} <br>
-        ${h.start.getHours().toString().padStart(2, '0')}:00
+        ${h.planet.symbol} ${h.planet.name}<br>
+        ${h.start.getHours().toString().padStart(2,'0')}:00 - ${h.end.getHours().toString().padStart(2,'0')}:00
         ${natalMatch ? "<br>Resonant with natal chart" : ""}
       </div>
     `;
     container.appendChild(div);
   });
-})();
+}
+
+// Initial load
+loadElectionalHours();
+
+// Refresh every minute to update current hour highlighting
+setInterval(loadElectionalHours, 60000);
 </script>
 
 </body>
