@@ -3,15 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Current Guidance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; background: black; color: white; padding: 1rem; }
-    pre { white-space: pre-wrap; font-size: 1rem; }
+    body { 
+      font-family: sans-serif; 
+      background: black; 
+      color: white; 
+      padding: 1rem; 
+      margin: 0;
+    }
+    h2 { text-align: center; margin-bottom: 1rem; }
+    pre { 
+      white-space: pre-wrap; 
+      font-size: 1rem; 
+      background: rgba(255, 255, 255, 0.05); 
+      padding: 10px; 
+      border-radius: 6px; 
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background-color: gold;
+      color: black;
+    }
   </style>
 </head>
 <body>
 
 <h2>Current Guidance</h2>
 <pre id="guidanceText">Loading...</pre>
+<button id="updateLocationBtn">Update Location</button>
 
 <script src="ephemeris.js"></script>
 <script src="zodiac.js"></script>
@@ -25,10 +51,9 @@ async function loadGuidance() {
   const container = document.getElementById("guidanceText");
   container.innerText = "Loading...";
 
-  // Load location safely
-  let location = loadLocation();
+  const location = loadLocation();
   if (!location) {
-    container.innerText = "No location set. Click 'Update Location' in main page.";
+    container.innerText = "No location set. Click 'Update Location' above.";
     return;
   }
 
@@ -36,26 +61,24 @@ async function loadGuidance() {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dayRuler = DAY_RULERS[today.getDay()] || "Sun";
 
-  // Compute sunrise/sunset safely
   let sunTimes;
   try {
     sunTimes = getSunTimes(today, location.lat, location.lon);
   } catch (err) {
     console.error("Error computing sun times:", err);
-    container.innerText = "Error computing sun times for your location.";
+    container.innerText = "Error computing sunrise/sunset for your location.";
     return;
   }
 
-  // Generate planetary hours
   const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
   const currentHour = getCurrentPlanetaryHour(hours, now);
 
   if (!currentHour) {
-    container.innerText = "No active planetary hour found right now.";
+    container.innerText = "No active planetary hour right now.";
     return;
   }
 
-  // Zodiac of current hour planet
+  // Zodiac
   const zodiac = getPlanetZodiac(currentHour.planet.name, now);
 
   // Natal resonance
@@ -70,12 +93,10 @@ async function loadGuidance() {
         const natalZodiac = getZodiacFromLongitude(natalLongs[currentHour.planet.name]);
         natalMatch = natalZodiac.name === zodiac.name;
       }
-    } catch (err) {
-      console.warn("Invalid natal data:", err);
-    }
+    } catch (err) { console.warn("Invalid natal data", err); }
   }
 
-  // Dignity and strength
+  // Dignity & strength
   const dignity = getDignity(currentHour.planet.name, zodiac.name);
   const strength = getHourStrength(currentHour.planet.name, zodiac.name, natalMatch);
 
@@ -84,12 +105,11 @@ async function loadGuidance() {
     ? PLANET_SEALS[currentHour.planet.name]
     : "N/A";
 
-  // Generate guidance text
+  // Guidance text
   const guidanceText = (typeof generateGuidance === "function")
     ? generateGuidance(currentHour.planet.name, zodiac.name, natalMatch)
     : "No guidance text defined.";
 
-  // Populate
   container.innerText =
     `Planetary Seal: ${seal}\n` +
     `Planet: ${currentHour.planet.symbol} ${currentHour.planet.name}\n` +
@@ -100,10 +120,33 @@ async function loadGuidance() {
     guidanceText;
 }
 
+// Update location
+document.getElementById("updateLocationBtn").addEventListener("click", async () => {
+  const input = prompt("Enter your city, state, and country (USA assumed if missing country):");
+  if (!input) return;
+
+  const safeInput = input.trim() + (input.split(",").length === 2 ? ", USA" : "");
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(safeInput)}`,
+      { headers: { "User-Agent": "PlanetaryHoursApp/1.0", "Accept": "application/json" } }
+    );
+    const data = await response.json();
+    if (!data || data.length === 0) { alert("Location not found."); return; }
+
+    saveLocation(parseFloat(data[0].lat), parseFloat(data[0].lon), input);
+    loadGuidance();
+  } catch (err) {
+    console.error("Location fetch failed:", err);
+    alert("Error retrieving location. Check your internet connection.");
+  }
+});
+
 // Initial load
 loadGuidance();
 
-// Refresh every 5 minutes
+// Refresh guidance every 5 minutes
 setInterval(loadGuidance, 5 * 60 * 1000);
 </script>
 
