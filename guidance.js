@@ -1,3 +1,5 @@
+// guidance.js
+
 const GD_PLANET_THEMES = {
   Sun: {
     action: "Authority, illumination, alignment with purpose",
@@ -51,16 +53,32 @@ const GD_SIGN_MODIFIERS = {
   Pisces: "visionary and dissolving"
 };
 
+/**
+ * Generate guidance text for a planetary hour
+ * @param {string} planetName - Planet ruling the hour
+ * @param {string} zodiacName - Zodiac sign of the planet
+ * @param {boolean} natalMatch - Whether the hour resonates with natal chart
+ * @returns {string} Guidance text
+ */
 function generateGuidance(planetName, zodiacName, natalMatch) {
   const planet = GD_PLANET_THEMES[planetName];
   const modifier = GD_SIGN_MODIFIERS[zodiacName];
 
-  let text = "";
-  text += "Planetary ruler: " + planetName + "\n\n";
-  text += "Primary current: " + planet.action + ".\n";
-  text += "Expression is " + modifier + ".\n\n";
-  text += "Suitable works: " + planet.suitable + ".\n";
-  text += "Caution: " + planet.caution + ".\n";
+  if (!planet || !modifier) return "No guidance available for this combination.";
+
+  let text = `
+Planetary ruler: ${planetName}
+
+Primary current: ${planet.action}.
+Expression is ${modifier}.
+
+Suitable works: ${planet.suitable}.
+Caution: ${planet.caution}.
+`;
 
   if (natalMatch) {
-    text += "\nThis hour resonates strongly with the natal
+    text += "\nThis hour resonates strongly with your natal chart, amplifying its effects.";
+  }
+
+  return text.trim();
+}
