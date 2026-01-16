@@ -71,3 +71,7 @@ iframe {
   height: calc(100vh - 120px);
   border: none;
 }
+.zodiac div {
+  font-size: 0.9em;
+  opacity: 0.85;
+}
