@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: sans-serif; background: black; color: white; }
+    .hour-bar { display: flex; margin: 4px 0; }
+    .hour-segment { flex: 1; padding: 4px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<h2>Electional Hour Overview</h2>
+<div id="electional"></div>
+
+<script src="ephemeris.js"></script>
+<script src="zodiac.js"></script>
+<script src="planetary.js"></script>
+<script src="dignity.js"></script>
+
+<script>
+const location = loadLocation();
+if (!location) {
+  document.getElementById("electional").innerText = "No location set.";
+} else {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayRuler = DAY_RULERS[today.getDay()];
+  const sunTimes = getSunTimes(today, location.lat, location.lon);
+  const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
+  const container = document.getElementById("electional");
+
+  hours.forEach(h => {
+    const zodiac = getPlanetZodiac(h.planet.name, h.start);
+    const natalRaw = localStorage.getItem("birthData");
+    let natalMatch = false;
+    if (natalRaw) {
+      const natal = JSON.parse(natalRaw);
+      const natalLongs = planetLongitudes(new Date(natal.date + "T" + natal.time));
+      natalMatch = getZodiacFromLongitude(natalLongs[h.planet.name]).name === zodiac.name;
+    }
+
+    const strength = getHourStrength(h.planet.name, zodiac.name, natalMatch);
+    const div = document.createElement("div");
+    div.className = "hour-bar";
+    div.innerHTML = `<div class="hour-segment" style="background-color: rgba(255,255,255,${0.1 + strength/5})">
+      ${h.planet.symbol} ${h.planet.name} <br> ${h.start.getHours()}:00
+    </div>`;
+    container.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
