@@ -78,4 +78,5 @@ document.getElementById("saveLocation").onclick = () => {
     hoursContainer.appendChild(div);
   });
 }
+setInterval(render, 60000);
 
