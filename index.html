@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Planetary Hours</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>Planetary Hours</h1>
+    <div id="currentDay"></div>
+  </header>
+
+  <section id="location">
+    <input id="latitude" type="number" placeholder="Latitude">
+    <input id="longitude" type="number" placeholder="Longitude">
+    <button id="saveLocation">Save Location</button>
+  </section>
+
+  <section id="hours"></section>
+
+  <script src="solar.js"></script>
+  <script src="planetary.js"></script>
+  <script src="storage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
