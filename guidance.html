@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>Current Guidance</h2>
+
+<pre id="guidanceText"></pre>
+
+<script src="ephemeris.js"></script>
+<script src="zodiac.js"></script>
+<script src="planetary.js"></script>
+<script src="guidance.js"></script>
+
+<script>
+function loadGuidance() {
+  const location = loadLocation();
+  if (!location) return;
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const dayRuler = DAY_RULERS[today.getDay()];
+  const sunTimes = getSunTimes(today, location.lat, location.lon);
+  const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
+
+  const currentHour = hours.find(h => now >= h.start && now < h.end);
+  if (!currentHour) return;
+
+  const zodiac = getPlanetZodiac(currentHour.planet.name, now);
+
+  let natalMatch = false;
+  const natalRaw = localStorage.getItem("birthData");
+
+  if (natalRaw) {
+    const natal = JSON.parse(natalRaw);
+    const natalDate = new Date(natal.date + "T" + natal.time);
+    const natalLongs = planetLongitudes(natalDate);
+    const natalZodiac = getZodiacFromLongitude(natalLongs[currentHour.planet.name]);
+    natalMatch = natalZodiac.name === zodiac.name;
+  }
+
+  const text = generateGuidance(
+    currentHour.planet.name,
+    zodiac.name,
+    natalMatch
+  );
+
+  document.getElementById("guidanceText").innerText = text;
+}
+
+loadGuidance();
+</script>
+
+</body>
+</html>
