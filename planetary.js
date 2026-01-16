@@ -64,3 +64,12 @@ function getPlanetZodiac(planetName, date) {
   const lon = longs[planetName];
   return getZodiacFromLongitude(lon);
 }
+const PLANET_SEALS = {
+  Sun: "☉",
+  Moon: "☽",
+  Mercury: "☿",
+  Venus: "♀",
+  Mars: "♂",
+  Jupiter: "♃",
+  Saturn: "♄"
+};
