@@ -104,4 +104,7 @@ function openInstructions() {
 function openNatal() {
   view.src = "natal.html";
 }
+function openGuidance() {
+  view.src = "guidance.html";
+}
 
