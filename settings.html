@@ -1,37 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Birth Data Settings</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: serif;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      max-width: 300px;
+      padding: 6px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      background: black;
+      color: white;
+      border: 1px solid white;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+
+    button {
+      background: white;
+      color: black;
+      border: none;
+      padding: 8px 16px;
+      font-size: 1em;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #ddd;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Birth Data</h2>
+<div class="container">
+  <h2>Birth Data</h2>
 
-<label>Date of birth</label><br>
-<input id="birthDate" type="date"><br><br>
+  <label for="birthDate">Date of Birth</label>
+  <input id="birthDate" type="date">
 
-<label>Time of birth</label><br>
-<input id="birthTime" type="time"><br><br>
+  <label for="birthTime">Time of Birth</label>
+  <input id="birthTime" type="time">
 
-<label>Birth latitude</label><br>
-<input id="birthLat" type="number"><br><br>
+  <label for="birthLat">Birth Latitude</label>
+  <input id="birthLat" type="number" step="0.0001" placeholder="e.g., 40.7128">
 
-<label>Birth longitude</label><br>
-<input id="birthLon" type="number"><br><br>
+  <label for="birthLon">Birth Longitude</label>
+  <input id="birthLon" type="number" step="0.0001" placeholder="e.g., -74.0060">
 
-<button onclick="saveBirth()">Save</button>
+  <button id="saveBirthBtn">Save Birth Data</button>
+</div>
 
 <script>
-function saveBirth() {
-  const data = {
-    date: document.getElementById("birthDate").value,
-    time: document.getElementById("birthTime").value,
-    lat: document.getElementById("birthLat").value,
-    lon: document.getElementById("birthLon").value
-  };
-  localStorage.setItem("birthData", JSON.stringify(data));
-  alert("Saved");
-}
+  // Load previously saved data
+  const birthRaw = localStorage.getItem("birthData");
+  if (birthRaw) {
+    const birth = JSON.parse(birthRaw);
+    document.getElementById("birthDate").value = birth.date || "";
+    document.getElementById("birthTime").value = birth.time || "";
+    document.getElementById("birthLat").value = birth.lat || "";
+    document.getElementById("birthLon").value = birth.lon || "";
+  }
+
+  document.getElementById("saveBirthBtn").addEventListener("click", () => {
+    const date = document.getElementById("birthDate").value;
+    const time = document.getElementById("birthTime").value;
+    const lat = parseFloat(document.getElementById("birthLat").value);
+    const lon = parseFloat(document.getElementById("birthLon").value);
+
+    if (!date || !time || isNaN(lat) || isNaN(lon)) {
+      alert("Please fill in all fields with valid values.");
+      return;
+    }
+
+    const data = { date, time, lat, lon };
+    localStorage.setItem("birthData", JSON.stringify(data));
+    alert("Birth data saved successfully!");
+  });
 </script>
 
 </body>
