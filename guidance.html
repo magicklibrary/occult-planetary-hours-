@@ -52,7 +52,23 @@ function loadGuidance() {
 }
 
 loadGuidance();
+  const dignity = getDignity(currentHour.planet.name, zodiac.name);
+const strength = getHourStrength(currentHour.planet.name, zodiac.name, natalMatch);
+
+const text = generateGuidance(
+  currentHour.planet.name,
+  zodiac.name,
+  natalMatch
+);
+
+document.getElementById("guidanceText").innerText =
+  `Planetary Seal: ${PLANET_SEALS[currentHour.planet.name]}\n` +
+  `Dignity: ${dignity}\n` +
+  `Strength Score: ${strength}\n\n` +
+  text;
+
 </script>
+
 
 </body>
 </html>
