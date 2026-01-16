@@ -9,7 +9,7 @@
 </head>
 <body>
 
- <header>
+<header>
   <h1>Planetary Hours</h1>
   <div id="currentDay"></div>
   <!-- Location edit button -->
@@ -17,29 +17,31 @@
 </header>
 
 <nav>
-<button id="btnMain">Hours</button>
-<button id="btnSettings">Settings</button>
-<button id="btnInstructions">Instructions</button>
-<button id="btnNatal">Natal</button>
-<button id="btnGuidance">Guidance</button>
-<button id="btnElectional">Electional</button>
-<button id="btnLegend">Legend</button>
-<button id="updateLocationBtn">Update Location</button>
-
-
-
+  <!-- Navigation buttons -->
+  <button id="btnMain">Hours</button>
+  <button id="btnSettings">Settings</button>
+  <button id="btnInstructions">Instructions</button>
+  <button id="btnNatal">Natal</button>
+  <button id="btnGuidance">Guidance</button>
+  <button id="btnElectional">Electional</button>
+  <button id="btnLegend">Legend</button>
 </nav>
 
-<iframe id="view" src="main.html"></iframe>
+<!-- Main content iframe -->
+<iframe id="view" src="main.html" style="width:100%; height:80vh; border:none;"></iframe>
 
-  <section id="hours"></section>
+<!-- Planetary hours container -->
+<section id="hours"></section>
 
-  <script src="solar.js"></script>
-  <script src="planetary.js"></script>
-  <script src="storage.js"></script>
-  <script src="zodiac.js"></script>
-  <script src="ephemeris.js"></script>
-  <script src="app.js"></script>
+<!-- Scripts -->
+<script src="solar.js"></script>
+<script src="planetary.js"></script>
+<script src="storage.js"></script>
+<script src="zodiac.js"></script>
+<script src="ephemeris.js"></script>
+<script src="dignity.js"></script>
+<script src="guidance.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
