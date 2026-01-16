@@ -14,11 +14,29 @@ function render() {
   const sunTimes = getSunTimes(today, location.lat, location.lon);
   const hours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
 
-  hours.forEach(h => {
-    const div = document.createElement("div");
-    div.className = "hour";
-    div.style.borderColor = h.planet.color;
+ hours.forEach(h => {
+  const div = document.createElement("div");
+  div.className = "hour";
 
+  const isActive = now >= h.start && now < h.end;
+  if (isActive) div.classList.add("active");
+
+  const zodiac = getPlanetZodiac(h.planet.name, now);
+
+  div.style.borderColor = h.planet.color;
+
+  div.innerHTML = `
+    <strong style="color:${h.planet.color}">
+      ${h.planet.symbol} ${h.planet.name}
+    </strong><br>
+    ${h.start.toLocaleTimeString()} to ${h.end.toLocaleTimeString()}
+    <div class="zodiac">
+      ${zodiac.symbol} ${zodiac.name}
+    </div>
+  `;
+
+  hoursContainer.appendChild(div);
+});
     div.innerHTML = `
       <strong style="color:${h.planet.color}">
         ${h.planet.symbol} ${h.planet.name}
