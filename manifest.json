@@ -1,8 +1,8 @@
 {
   "name": "Planetary Hours - Occult Timekeeping",
   "short_name": "Planetary Hours",
-  "description": "Calculate planetary hours for ceremonial magic and electional astrology",
-  "start_url": "./",
+  "description": "Calculate planetary hours for ceremonial magic and electional astrology with precise astronomical calculations",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#1a0a2e",
@@ -24,5 +24,15 @@
   ],
   "categories": ["lifestyle", "education", "utilities"],
   "lang": "en-US",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Current Hour",
+      "short_name": "Now",
+      "description": "View current planetary hour",
+      "url": "./index.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }
