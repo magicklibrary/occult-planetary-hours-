@@ -4,15 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#000000">
   <title>Planetary Hours - Occult Timekeeping</title>
-  <link rel="manifest" href="manifest.json">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'Cinzel', serif;
+      font-family: 'Georgia', serif;
       background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
       color: #f0e6d2;
       min-height: 100vh;
@@ -21,7 +18,6 @@
     
     .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
     
-    /* Header */
     header {
       background: linear-gradient(180deg, rgba(26,10,46,0.95) 0%, rgba(10,10,10,0.8) 100%);
       backdrop-filter: blur(10px);
@@ -42,14 +38,29 @@
       letter-spacing: 2px;
     }
     
-    .location-display {
+    .current-date {
+      text-align: center;
+      color: #b8a080;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .current-hour-header {
+      background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(139,92,246,0.2) 100%);
+      border: 2px solid #d4af37;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .day-ruler {
       text-align: center;
       color: #b8a080;
       font-size: 0.9rem;
-      margin-top: 0.5rem;
+      margin-bottom: 1rem;
     }
     
-    /* Navigation */
     nav {
       display: flex;
       gap: 0.5rem;
@@ -84,7 +95,6 @@
       box-shadow: 0 0 20px rgba(212,175,55,0.6);
     }
     
-    /* Content Sections */
     .view-section {
       display: none;
       padding: 2rem 0;
@@ -98,7 +108,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Hour Cards */
     .hours-grid {
       display: grid;
       gap: 1rem;
@@ -112,7 +121,7 @@
       border-radius: 12px;
       padding: 1.25rem;
       transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
+      cursor: pointer;
     }
     
     .hour-card:hover {
@@ -176,16 +185,7 @@
       align-items: center;
     }
     
-    .detail-label {
-      color: #b8a080;
-      font-size: 0.85rem;
-    }
-    
-    .strength-excellent { color: #4ade80; font-weight: bold; }
-    .strength-good { color: #fbbf24; }
-    .strength-weak { color: #f87171; }
-    
-    .resonance-badge {
+    .badge {
       background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
       color: white;
       padding: 0.25rem 0.75rem;
@@ -196,60 +196,62 @@
       margin-top: 0.5rem;
     }
     
-    /* Current Hour Display */
-    .current-hour-showcase {
-      background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(139,92,246,0.1) 100%);
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    
+    .modal.active { display: block; }
+    
+    .modal-content {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(26,10,46,0.95) 0%, rgba(45,27,78,0.95) 100%);
       border: 2px solid #d4af37;
       border-radius: 16px;
-      padding: 2rem;
-      text-align: center;
-      margin-top: 1.5rem;
-      box-shadow: 0 8px 40px rgba(212,175,55,0.4);
     }
     
-    .current-planet-symbol {
-      font-size: 6rem;
-      line-height: 1;
+    .close-btn {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
       margin-bottom: 1rem;
-      text-shadow: 0 0 30px currentColor;
     }
     
-    .current-planet-name {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
+    .close-btn:hover {
+      background: #7c3aed;
     }
     
-    .guidance-section {
-      background: rgba(26,10,46,0.6);
-      border-radius: 12px;
+    .ritual-section {
+      background: rgba(0,0,0,0.4);
       padding: 1.5rem;
-      margin-top: 2rem;
-      text-align: left;
-    }
-    
-    .guidance-item {
+      border-radius: 12px;
       margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(212,175,55,0.2);
     }
     
-    .guidance-item:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    
-    .guidance-title {
+    .ritual-section h3 {
       color: #d4af37;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
     }
     
-    /* Settings */
-    .settings-panel {
-      max-width: 600px;
-      margin: 0 auto;
+    .hymn-text {
+      font-style: italic;
+      line-height: 1.8;
+      color: #e0d0b0;
+      white-space: pre-line;
     }
     
     .settings-group {
@@ -291,7 +293,7 @@
       box-shadow: 0 0 10px rgba(212,175,55,0.3);
     }
     
-    button.primary {
+    .primary-btn {
       width: 100%;
       background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
       color: #1a0a2e;
@@ -305,256 +307,363 @@
       transition: all 0.3s ease;
     }
     
-    button.primary:hover {
+    .primary-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 20px rgba(212,175,55,0.5);
     }
     
-    /* Legend Table */
-    .legend-table {
+    .hexagram-container {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+    
+    .hexagram-svg {
+      width: 150px;
+      height: 150px;
+    }
+    
+    table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1.5rem;
-      font-size: 0.85rem;
     }
     
-    .legend-table th,
-    .legend-table td {
+    th, td {
       border: 1px solid #3a2a5a;
       padding: 1rem;
       text-align: left;
     }
     
-    .legend-table th {
+    th {
       background: rgba(212,175,55,0.2);
       color: #d4af37;
       font-weight: bold;
     }
     
-    .legend-table tr:nth-child(even) {
+    tr:nth-child(even) {
       background: rgba(26,10,46,0.3);
     }
     
-    /* Natal Chart */
-    .natal-grid {
-      display: grid;
-      gap: 1rem;
-      margin-top: 1.5rem;
+    .scrying-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 2000;
+      display: none;
     }
     
-    .natal-card {
-      background: rgba(26,10,46,0.6);
-      border: 1px solid #3a2a5a;
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .scrying-screen.active {
+      display: block;
     }
     
-    .natal-planet {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    .static-noise {
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+      animation: static-anim 0.1s infinite;
     }
     
-    .natal-planet-symbol {
-      font-size: 2rem;
+    @keyframes static-anim {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.3; }
     }
     
-    .natal-zodiac {
-      text-align: right;
+    .exit-scrying {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2001;
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
     }
     
-    .natal-zodiac-symbol {
-      font-size: 1.5rem;
-    }
-    
-    /* Responsive */
     @media (max-width: 768px) {
       h1 { font-size: 1.8rem; }
-      .current-planet-symbol { font-size: 4rem; }
-      .current-planet-name { font-size: 1.8rem; }
-      nav { gap: 0.25rem; }
+      .planet-symbol { font-size: 2rem; }
       nav button { padding: 0.6rem 1rem; font-size: 0.85rem; }
-      .legend-table { font-size: 0.75rem; }
-      .legend-table th, .legend-table td { padding: 0.5rem; }
     }
-    
-    .info-box {
-      background: rgba(139,92,246,0.1);
-      border: 1px solid #8b5cf6;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      line-height: 1.6;
-    }
-    
-    .info-box h3 {
-      color: #a855f7;
-      margin-bottom: 1rem;
-    }
-    
-    .electional-indicator {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      display: inline-block;
-      margin-top: 0.25rem;
-    }
-    
-    .excellent { background: #065f46; color: #6ee7b7; }
-    .good { background: #78350f; color: #fcd34d; }
-    .fair { background: #44403c; color: #d6d3d1; }
-    .weak { background: #7f1d1d; color: #fca5a5; }
   </style>
 </head>
 <body>
 
 <header>
   <div class="container">
-    <h1>⊹ PLANETARY HOURS ⊹</h1>
-    <div class="location-display" id="locationDisplay">Loading location...</div>
+    <h1>⭐ PLANETARY HOURS ⭐</h1>
+    <div class="current-date" id="currentDate"></div>
+    <div id="currentHourHeader"></div>
+    <div class="day-ruler" id="dayRuler"></div>
   </div>
 </header>
 
 <div class="container">
   <nav>
     <button onclick="showView('hours')" class="active" data-view="hours">Today's Hours</button>
-    <button onclick="showView('current')" data-view="current">Current Hour</button>
     <button onclick="showView('electional')" data-view="electional">Electional</button>
     <button onclick="showView('natal')" data-view="natal">Natal Chart</button>
+    <button onclick="showView('correspondences')" data-view="correspondences">Correspondences</button>
     <button onclick="showView('settings')" data-view="settings">Settings</button>
-    <button onclick="showView('legend')" data-view="legend">Correspondences</button>
   </nav>
 
-  <!-- HOURS VIEW -->
   <div id="hours" class="view-section active">
     <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">All Planetary Hours Today</h2>
     <div class="hours-grid" id="hoursGrid"></div>
   </div>
 
-  <!-- CURRENT HOUR VIEW -->
-  <div id="current" class="view-section">
-    <div class="current-hour-showcase" id="currentHourDisplay">
-      <p style="color: #b8a080;">No active hour at this moment</p>
-    </div>
-  </div>
-
-  <!-- ELECTIONAL VIEW -->
   <div id="electional" class="view-section">
-    <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">Electional Hours Overview</h2>
-    <p style="text-align: center; color: #b8a080; margin-bottom: 1.5rem;">Optimal hours for ceremonial operations highlighted by strength and dignity</p>
+    <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">Electional Hours</h2>
+    <p style="text-align: center; color: #b8a080; margin-bottom: 1.5rem;">Optimal hours for ceremonial operations</p>
     <div class="hours-grid" id="electionalGrid"></div>
   </div>
 
-  <!-- NATAL CHART VIEW -->
   <div id="natal" class="view-section">
     <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">Natal Chart</h2>
-    <div class="natal-grid" id="natalGrid"></div>
+    <div id="natalGrid"></div>
   </div>
 
-  <!-- SETTINGS VIEW -->
+  <div id="correspondences" class="view-section">
+    <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">Planetary Correspondences</h2>
+    <div style="overflow-x: auto;">
+      <table id="corrTable"></table>
+    </div>
+  </div>
+
   <div id="settings" class="view-section">
-    <div class="settings-panel">
+    <div style="max-width: 600px; margin: 0 auto;">
       <div class="settings-group">
-        <h3>Location</h3>
+        <h3>Location for Planetary Hours</h3>
         <label>City, State, Country</label>
         <input type="text" id="locationInput" placeholder="e.g., New York, NY, USA">
-        <button class="primary" onclick="updateLocation()">Update Location</button>
+        <button class="primary-btn" onclick="updateLocation()">Update Location</button>
       </div>
       
       <div class="settings-group">
         <h3>Birth Data for Natal Chart</h3>
         <label>Date of Birth</label>
         <input type="date" id="birthDate">
-        <label>Time of Birth (24-hour format)</label>
+        <label>Time of Birth (24-hour)</label>
         <input type="time" id="birthTime">
-        <button class="primary" onclick="saveBirthData()">Save Birth Data</button>
+        <label>Birth Location</label>
+        <input type="text" id="birthLocation" placeholder="City, State, Country">
+        <button class="primary-btn" onclick="saveBirthData()">Save Birth Data</button>
       </div>
-    </div>
-  </div>
-
-  <!-- LEGEND VIEW -->
-  <div id="legend" class="view-section">
-    <h2 style="text-align: center; color: #d4af37; font-size: 1.8rem; margin-bottom: 1rem;">Planetary Correspondences</h2>
-    
-    <table class="legend-table">
-      <thead>
-        <tr>
-          <th>Planet</th>
-          <th>Archangel</th>
-          <th>Intelligence</th>
-          <th>Spirit</th>
-          <th>Metal</th>
-          <th>Incense</th>
-          <th>Crystals</th>
-        </tr>
-      </thead>
-      <tbody id="legendTable"></tbody>
-    </table>
-
-    <div class="info-box">
-      <h3>Understanding Planetary Hours</h3>
-      <p>Planetary hours are an ancient system of sacred timekeeping used in Western occultism for over two millennia. Each day is ruled by one of the seven classical planets, and time is divided into 24 unequal hours based on sunrise and sunset.</p>
-      <p style="margin-top: 1rem;">The hours follow the Chaldean order: Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon. Each planetary hour carries specific energies suited for particular magical operations.</p>
-      <p style="margin-top: 1rem;"><strong>Dignities:</strong> Exaltation (strongest), Neutral, Detriment (challenged), Fall (weakest)</p>
-      <p style="margin-top: 1rem;"><strong>Natal Resonance:</strong> When a planetary hour's zodiac matches your natal chart position for that planet, the effects are amplified.</p>
     </div>
   </div>
 </div>
 
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeDetail()">← Back</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div id="ritualModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeRitual()">← Back</button>
+    <div id="ritualContent"></div>
+  </div>
+</div>
+
+<div id="scryingScreen" class="scrying-screen">
+  <button class="exit-scrying" onclick="exitScrying()">Exit Scrying</button>
+  <div class="static-noise"></div>
+</div>
+
 <script>
 // ============================================================================
-// STATE & STORAGE
+// STATE & DATA
 // ============================================================================
 
+const CHALDEAN_ORDER = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"];
+const DAY_RULERS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const PLANET_DETAILS = {
+  Sun: { symbol: "☉", color: "#FFD700" },
+  Moon: { symbol: "☽", color: "#C0C0C0" },
+  Mercury: { symbol: "☿", color: "#FFA500" },
+  Venus: { symbol: "♀", color: "#FF69B4" },
+  Mars: { symbol: "♂", color: "#FF4500" },
+  Jupiter: { symbol: "♃", color: "#4169E1" },
+  Saturn: { symbol: "♄", color: "#708090" }
+};
+
+const ZODIAC_SIGNS = [
+  { name: "Aries", symbol: "♈", start: 0 },
+  { name: "Taurus", symbol: "♉", start: 30 },
+  { name: "Gemini", symbol: "♊", start: 60 },
+  { name: "Cancer", symbol: "♋", start: 90 },
+  { name: "Leo", symbol: "♌", start: 120 },
+  { name: "Virgo", symbol: "♍", start: 150 },
+  { name: "Libra", symbol: "♎", start: 180 },
+  { name: "Scorpio", symbol: "♏", start: 210 },
+  { name: "Sagittarius", symbol: "♐", start: 240 },
+  { name: "Capricorn", symbol: "♑", start: 270 },
+  { name: "Aquarius", symbol: "♒", start: 300 },
+  { name: "Pisces", symbol: "♓", start: 330 }
+];
+
+const PLANET_DIGNITIES = {
+  Sun: { exaltation: "Aries", detriment: "Aquarius", fall: "Libra" },
+  Moon: { exaltation: "Taurus", detriment: "Capricorn", fall: "Scorpio" },
+  Mercury: { exaltation: "Virgo", detriment: "Sagittarius", fall: "Pisces" },
+  Venus: { exaltation: "Pisces", detriment: "Aries", fall: "Virgo" },
+  Mars: { exaltation: "Capricorn", detriment: "Libra", fall: "Cancer" },
+  Jupiter: { exaltation: "Cancer", detriment: "Gemini", fall: "Capricorn" },
+  Saturn: { exaltation: "Libra", detriment: "Cancer", fall: "Aries" }
+};
+
+const CORRESPONDENCES = {
+  Saturn: {
+    archangel: "Cassiel", intelligence: "Agiel", spirit: "Zazel",
+    metal: "Lead", incense: "Galbanum, scammony, pepper-wort",
+    crystals: "Sapphire, Onyx, Jet", suitable: "Bindings, discipline, structure",
+    divineNames: "Binah, Jehovah Elohim", keywords: "Structure, Discipline, Restriction"
+  },
+  Jupiter: {
+    archangel: "Zadkiel", intelligence: "Jophiel", spirit: "Hismael",
+    metal: "Tin", incense: "Nutmeg, cloves, cedar",
+    crystals: "Amethyst, Lapis Lazuli", suitable: "Prosperity, wisdom, expansion",
+    divineNames: "El, Adonai", keywords: "Expansion, Abundance, Wisdom"
+  },
+  Mars: {
+    archangel: "Camael", intelligence: "Graphiel", spirit: "Bartzabel",
+    metal: "Iron", incense: "Red sanders, cypress, myrrh",
+    crystals: "Ruby, Garnet, Bloodstone", suitable: "Courage, war, protection",
+    divineNames: "Elohim Gibor", keywords: "Courage, Force, Victory"
+  },
+  Sun: {
+    archangel: "Michael", intelligence: "Nakhiel", spirit: "Sorath",
+    metal: "Gold", incense: "Frankincense, cinnamon",
+    crystals: "Topaz, Diamond, Amber", suitable: "Power, success, authority",
+    divineNames: "Eloah, Adonai, Jehovah", keywords: "Authority, Power, Glory"
+  },
+  Venus: {
+    archangel: "Hanael", intelligence: "Hagiel", spirit: "Kedemel",
+    metal: "Copper", incense: "Roses, violets, saffron",
+    crystals: "Emerald, Rose Quartz, Pearl", suitable: "Love, beauty, harmony",
+    divineNames: "Jehovah, Elohim", keywords: "Love, Harmony, Beauty"
+  },
+  Mercury: {
+    archangel: "Raphael", intelligence: "Tiriel", spirit: "Taphtatharath",
+    metal: "Brass", incense: "Cinnamon, lavender, fennel",
+    crystals: "Agate, Carnelian, Quartz", suitable: "Communication, learning, business",
+    divineNames: "Elohim Tzabaoth", keywords: "Communication, Intellect, Speed"
+  },
+  Moon: {
+    archangel: "Gabriel", intelligence: "Malkah beTarshishim", spirit: "Shadbarshemoth",
+    metal: "Silver", incense: "Jasmine, sandalwood",
+    crystals: "Moonstone, Pearl, Selenite", suitable: "Intuition, dreams, cycles",
+    divineNames: "Shaddai, Elim", keywords: "Intuition, Memory, Cycles"
+  }
+};
+
+const HYMNS = {
+  Saturn: `Ethereal father, mighty Titan hear,
+Great fire of gods and men revere.
+With council pure and strong,
+To thee perfection and decrease belong.
+
+Father of vast eternity divine,
+Mighty Saturn, speech is thine.
+Venerable root from which being shoots,
+Bless these rites, grant blessed end.`,
+
+  Jupiter: `Much-honored Jove, supremely great,
+Holy rites to thee consecrate.
+King descending from above,
+Magnanimous commanding Jove.
+
+Source of abundance, purifying king,
+From whom all natures spring.
+Hear my prayer, give health divine,
+Peace and wealth, forever thine.`,
+
+  Mars: `Brass-beating power, minister of war,
+Guard of arms, sacred lore.
+In glittering arms the earth you beat,
+With leaping rapid sounding feet.
+
+Immortal strength, to your power consigned,
+Task to protect all of mankind.
+Assist these works, courage divine,
+Make victory and strength mine.`,
+
+  Sun: `Golden Titan, eternal eye divine,
+Illuminating all with radiant shine.
+Self-born unwearied, light you spread,
+Mirror of delight overhead.
+
+Father of ages, commander supreme,
+Source of existence, pure fiery gleam.
+Great eye of Nature, justice dispense,
+Bless these rites with thy radiance.`,
+
+  Venus: `Heavenly one, laughter-loving queen,
+Sea-born, night-loving, awesome mien.
+From you necessity first came,
+All-connecting, nightly dame.
+
+Source of persuasion, secretly fav'ring,
+Mother of loves, banquets savoring.
+Cyprus-born, to my prayer incline,
+Come all-attractive, be divine.`,
+
+  Mercury: `Hermes divine, to my prayer incline,
+Angel of Jove, Maia's son so fine.
+Celestial messenger of varied skill,
+Watchful Argus fell to thy will.
+
+Great life-supporter, joy is thine,
+All language you explain divine.
+Assist my works with graceful speech,
+Memory's increase within my reach.`,
+
+  Moon: `Silver goddess, diffusing gentle light,
+Bull-horned wanderer through night.
+Mother of ages, fruit-producing Moon,
+Making night's reflected noon.
+
+Queen of stars, all-wise hail,
+In graceful robe and shining veil.
+Blessed goddess, starry and bright,
+Shine on these rites with chaste light.`
+};
+
 let appState = {
-  location: { lat: 40.7128, lon: -74.0060, city: "New York, NY" },
+  location: { lat: 40.7128, lon: -74.0060, city: "New York, NY, USA" },
   birthData: null,
+  birthLocation: null,
   hours: [],
   currentHour: null,
   natalChart: null
 };
-
-function loadFromStorage() {
-  const loc = localStorage.getItem('occult_location');
-  const birth = localStorage.getItem('occult_birthData');
-  
-  if (loc) {
-    try { appState.location = JSON.parse(loc); } catch(e) {}
-  }
-  
-  if (birth) {
-    try {
-      appState.birthData = JSON.parse(birth);
-      calculateNatalChart();
-    } catch(e) {}
-  }
-}
-
-function saveToStorage() {
-  localStorage.setItem('occult_location', JSON.stringify(appState.location));
-  if (appState.birthData) {
-    localStorage.setItem('occult_birthData', JSON.stringify(appState.birthData));
-  }
-}
 
 // ============================================================================
 // ASTRONOMICAL CALCULATIONS
 // ============================================================================
 
 const RAD = Math.PI / 180;
-const DAY_MS = 86400000;
 const J1970 = 2440587.5;
 const J2000 = 2451545.0;
 
 function toJulian(date) {
-  return date.valueOf() / DAY_MS - 0.5 + J1970;
+  return date.valueOf() / 86400000 - 0.5 + J1970;
 }
 
 function fromJulian(j) {
-  return new Date((j + 0.5 - J1970) * DAY_MS);
+  return new Date((j + 0.5 - J1970) * 86400000);
 }
 
 function normalize(deg) {
@@ -566,7 +675,7 @@ function getSunTimes(date, lat, lon) {
   const lw = RAD * -lon;
   const d = toJulian(date) - J2000;
   const M = RAD * (357.5291 + 0.98560028 * d);
-  const C = RAD * (1.9148 * Math.sin(M) + 0.0200 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M));
+  const C = RAD * (1.9148 * Math.sin(M) + 0.0200 * Math.sin(2 * M));
   const P = RAD * 102.9372;
   const L = M + C + P + Math.PI;
   const dec = Math.asin(Math.sin(L) * Math.sin(RAD * 23.44));
@@ -579,12 +688,8 @@ function getSunTimes(date, lat, lon) {
   };
 }
 
-function julianDay(date) {
-  return date.getTime() / 86400000 + 2440587.5;
-}
-
 function planetLongitudes(date) {
-  const d = julianDay(date) - 2451545.0;
+  const d = toJulian(date) - 2451545.0;
   const sunL0 = normalize(280.46646 + 0.9856474 * d);
   const sunM = normalize(357.52911 + 0.9856003 * d);
   const sunC = 1.914602 * Math.sin(sunM * RAD);
@@ -602,25 +707,6 @@ function planetLongitudes(date) {
   };
 }
 
-// ============================================================================
-// ZODIAC & DIGNITIES
-// ============================================================================
-
-const ZODIAC_SIGNS = [
-  { name: "Aries", symbol: "♈", start: 0 },
-  { name: "Taurus", symbol: "♉", start: 30 },
-  { name: "Gemini", symbol: "♊", start: 60 },
-  { name: "Cancer", symbol: "♋", start: 90 },
-  { name: "Leo", symbol: "♌", start: 120 },
-  { name: "Virgo", symbol: "♍", start: 150 },
-  { name: "Libra", symbol: "♎", start: 180 },
-  { name: "Scorpio", symbol: "♏", start: 210 },
-  { name: "Sagittarius", symbol: "♐", start: 240 },
-  { name: "Capricorn", symbol: "♑", start: 270 },
-  { name: "Aquarius", symbol: "♒", start: 300 },
-  { name: "Pisces", symbol: "♓", start: 330 }
-];
-
 function getZodiacFromLongitude(deg) {
   const longitude = normalize(deg);
   for (let i = ZODIAC_SIGNS.length - 1; i >= 0; i--) {
@@ -631,31 +717,18 @@ function getZodiacFromLongitude(deg) {
   return ZODIAC_SIGNS[0];
 }
 
-const PLANET_EXALTATIONS = {
-  Sun: "Aries", Moon: "Taurus", Mercury: "Virgo", Venus: "Pisces",
-  Mars: "Capricorn", Jupiter: "Cancer", Saturn: "Libra"
-};
-
-const PLANET_DETRIMENTS = {
-  Sun: "Libra", Moon: "Scorpio", Mercury: "Pisces", Venus: "Virgo",
-  Mars: "Taurus", Jupiter: "Capricorn", Saturn: "Cancer"
-};
-
-const PLANET_FALLS = {
-  Sun: "Libra", Moon: "Scorpio", Mercury: "Pisces", Venus: "Virgo",
-  Mars: "Cancer", Jupiter: "Capricorn", Saturn: "Aries"
-};
-
-function getDignity(planet, zodiac) {
-  if (zodiac === PLANET_EXALTATIONS[planet]) return "Exaltation";
-  if (zodiac === PLANET_DETRIMENTS[planet]) return "Detriment";
-  if (zodiac === PLANET_FALLS[planet]) return "Fall";
+function getDignity(planet, zodiacName) {
+  const dig = PLANET_DIGNITIES[planet];
+  if (!dig) return "Neutral";
+  if (zodiacName === dig.exaltation) return "Exaltation";
+  if (zodiacName === dig.detriment) return "Detriment";
+  if (zodiacName === dig.fall) return "Fall";
   return "Neutral";
 }
 
-function getHourStrength(planet, zodiac, natalMatch = false) {
+function getHourStrength(planet, zodiacName, natalMatch = false) {
   let score = 1;
-  const dignity = getDignity(planet, zodiac);
+  const dignity = getDignity(planet, zodiacName);
   if (dignity === "Exaltation") score += 2;
   if (dignity === "Neutral") score += 1;
   if (dignity === "Detriment") score -= 1;
@@ -663,139 +736,6 @@ function getHourStrength(planet, zodiac, natalMatch = false) {
   if (natalMatch) score += 1;
   return score;
 }
-
-// ============================================================================
-// PLANETARY DATA
-// ============================================================================
-
-const CHALDEAN_ORDER = ["Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"];
-const DAY_RULERS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
-
-const PLANET_DETAILS = {
-  Sun: { symbol: "☉", color: "#FFD700" },
-  Moon: { symbol: "☽", color: "#C0C0C0" },
-  Mercury: { symbol: "☿", color: "#FFA500" },
-  Venus: { symbol: "♀", color: "#FF69B4" },
-  Mars: { symbol: "♂", color: "#FF4500" },
-  Jupiter: { symbol: "♃", color: "#4169E1" },
-  Saturn: { symbol: "♄", color: "#708090" }
-};
-
-const PLANET_CORRESPONDENCES = {
-  Saturn: {
-    archangel: "Cassiel",
-    intelligence: "Agiel",
-    spirit: "Zazel",
-    metal: "Lead",
-    incense: "Galbanum, scammony, pepper-wort, indigo resin",
-    crystals: "Sapphire, Onyx, Jet, Lapis Lazuli"
-  },
-  Jupiter: {
-    archangel: "Zadkiel",
-    intelligence: "Jophiel",
-    spirit: "Hismael",
-    metal: "Tin",
-    incense: "Nutmeg, cloves, cedar, oak moss",
-    crystals: "Amethyst, Lapis Lazuli, Emerald"
-  },
-  Mars: {
-    archangel: "Camael",
-    intelligence: "Graphiel",
-    spirit: "Barzabel",
-    metal: "Iron",
-    incense: "Red sanders, cypress, myrrh, ginger",
-    crystals: "Ruby, Garnet, Bloodstone, Red Jasper"
-  },
-  Sun: {
-    archangel: "Michael",
-    intelligence: "Nachiel",
-    spirit: "Sorath",
-    metal: "Gold",
-    incense: "Frankincense, benzoin, cinnamon, musk",
-    crystals: "Topaz, Diamond, Amber, Sunstone"
-  },
-  Venus: {
-    archangel: "Hanael",
-    intelligence: "Hagiel",
-    spirit: "Kedemel",
-    metal: "Copper",
-    incense: "Roses, violets, saffron, benzoin",
-    crystals: "Emerald, Jade, Rose Quartz, Pearl"
-  },
-  Mercury: {
-    archangel: "Raphael",
-    intelligence: "Tiriel",
-    spirit: "Taphthartharath",
-    metal: "Brass",
-    incense: "Cinnamon, mace, lavender, fennel",
-    crystals: "Agate, Carnelian, Labradorite, Quartz"
-  },
-  Moon: {
-    archangel: "Gabriel",
-    intelligence: "Malcha",
-    spirit: "Hasmodai",
-    metal: "Silver",
-    incense: "Jasmine, willow, sandalwood, cardamom",
-    crystals: "Moonstone, Pearl, Selenite, Opal"
-  }
-};
-
-const PLANET_THEMES = {
-  Sun: {
-    action: "Authority, illumination, alignment with purpose",
-    caution: "Avoid ego-driven action",
-    suitable: "Invocation, leadership decisions, consecration of solar talismans"
-  },
-  Moon: {
-    action: "Reflection, memory, psychic sensitivity",
-    caution: "Avoid instability or emotional excess",
-    suitable: "Divination, scrying, dream work, lunar operations"
-  },
-  Mercury: {
-    action: "Communication, learning, symbolic work",
-    caution: "Avoid deception or haste",
-    suitable: "Writing, study, sigil construction, mercurial magic"
-  },
-  Venus: {
-    action: "Harmony, attraction, reconciliation",
-    caution: "Avoid indulgence",
-    suitable: "Love talismans, artistic work, relational magic"
-  },
-  Mars: {
-    action: "Force, separation, courage",
-    caution: "Avoid anger and rash acts",
-    suitable: "Banishing, defense, decisive action, martial operations"
-  },
-  Jupiter: {
-    action: "Expansion, justice, wisdom",
-    caution: "Avoid excess or arrogance",
-    suitable: "Blessings, prosperity rites, oaths, legal matters"
-  },
-  Saturn: {
-    action: "Restriction, endurance, structure",
-    caution: "Avoid melancholy",
-    suitable: "Bindings, discipline, long-term planning, saturnine work"
-  }
-};
-
-const SIGN_MODIFIERS = {
-  Aries: "direct and forceful",
-  Taurus: "stable and material",
-  Gemini: "intellectual and fluid",
-  Cancer: "protective and internal",
-  Leo: "expressive and radiant",
-  Virgo: "precise and corrective",
-  Libra: "balanced and relational",
-  Scorpio: "intense and transformative",
-  Sagittarius: "aspirational and expansive",
-  Capricorn: "structured and disciplined",
-  Aquarius: "detached and innovative",
-  Pisces: "visionary and dissolving"
-};
-
-// ============================================================================
-// PLANETARY HOURS GENERATION
-// ============================================================================
 
 function generatePlanetaryHours(dayRuler, sunrise, sunset) {
   const hours = [];
@@ -811,13 +751,131 @@ function generatePlanetaryHours(dayRuler, sunrise, sunset) {
     const planet = PLANET_DETAILS[planetName];
     const start = new Date(i < 12 ? sunrise.getTime() + i * dayLength : sunset.getTime() + (i - 12) * nightLength);
     const end = new Date(i < 12 ? sunrise.getTime() + (i + 1) * dayLength : sunset.getTime() + (i - 11) * nightLength);
+    
+    const zodiac = getZodiacFromLongitude(planetLongitudes(start)[planetName]);
+    const dignity = getDignity(planetName, zodiac.name);
+    
+    let natalMatch = false;
+    if (appState.natalChart) {
+      const natalPlanet = appState.natalChart.find(p => p.planet === planetName);
+      if (natalPlanet && natalPlanet.zodiac.name === zodiac.name) {
+        natalMatch = true;
+      }
+    }
+    
+    const strength = getHourStrength(planetName, zodiac.name, natalMatch);
+    
     hours.push({ 
-      planet: { name: planetName, symbol: planet.symbol, color: planet.color }, 
+      planet: { name: planetName, ...planet },
       start, 
-      end 
+      end,
+      zodiac,
+      dignity,
+      strength,
+      natalMatch,
+      isDayHour: i < 12
     });
   }
   return hours;
+}
+
+// ============================================================================
+// HEXAGRAM SVG GENERATION
+// ============================================================================
+
+function getHexagramSVG(planet, type) {
+  const color = PLANET_DETAILS[planet].color;
+  
+  // Invoking hexagrams
+  const hexagrams = {
+    Saturn: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,40 140,90 100,90" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,40 60,90 100,90" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,160 60,110 100,110" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,160 140,110 100,110" stroke="${color}" stroke-width="3" fill="none"/>
+      <circle cx="100" cy="40" r="5" fill="${color}"/>
+      <circle cx="60" cy="90" r="5" fill="${color}"/>
+      <circle cx="140" cy="90" r="5" fill="${color}"/>
+      <circle cx="60" cy="110" r="5" fill="${color}"/>
+      <circle cx="140" cy="110" r="5" fill="${color}"/>
+      <circle cx="100" cy="160" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Jupiter: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,50 160,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,50 40,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,150 40,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,150 160,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <circle cx="100" cy="50" r="5" fill="${color}"/>
+      <circle cx="40" cy="100" r="5" fill="${color}"/>
+      <circle cx="160" cy="100" r="5" fill="${color}"/>
+      <circle cx="100" cy="150" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Mars: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,60 130,100 70,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,140 70,100 130,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <line x1="70" y1="100" x2="130" y2="100" stroke="${color}" stroke-width="3"/>
+      <circle cx="100" cy="60" r="5" fill="${color}"/>
+      <circle cx="70" cy="100" r="5" fill="${color}"/>
+      <circle cx="130" cy="100" r="5" fill="${color}"/>
+      <circle cx="100" cy="140" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Sun: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,40 140,90 100,90" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,40 60,90 100,90" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,160 60,110 100,110" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,160 140,110 100,110" stroke="${color}" stroke-width="3" fill="none"/>
+      <line x1="60" y1="90" x2="140" y2="90" stroke="${color}" stroke-width="3"/>
+      <line x1="60" y1="110" x2="140" y2="110" stroke="${color}" stroke-width="3"/>
+      <circle cx="100" cy="40" r="5" fill="${color}"/>
+      <circle cx="60" cy="90" r="5" fill="${color}"/>
+      <circle cx="140" cy="90" r="5" fill="${color}"/>
+      <circle cx="60" cy="110" r="5" fill="${color}"/>
+      <circle cx="140" cy="110" r="5" fill="${color}"/>
+      <circle cx="100" cy="160" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Venus: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,55 145,95 100,95" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,55 55,95 100,95" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,145 55,105 100,105" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,145 145,105 100,105" stroke="${color}" stroke-width="3" fill="none"/>
+      <circle cx="100" cy="100" r="20" stroke="${color}" stroke-width="3" fill="none"/>
+      <circle cx="100" cy="55" r="5" fill="${color}"/>
+      <circle cx="55" cy="95" r="5" fill="${color}"/>
+      <circle cx="145" cy="95" r="5" fill="${color}"/>
+      <circle cx="55" cy="105" r="5" fill="${color}"/>
+      <circle cx="145" cy="105" r="5" fill="${color}"/>
+      <circle cx="100" cy="145" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Mercury: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="60" width="80" height="80" stroke="${color}" stroke-width="3" fill="none"/>
+      <line x1="60" y1="60" x2="140" y2="140" stroke="${color}" stroke-width="3"/>
+      <line x1="140" y1="60" x2="60" y2="140" stroke="${color}" stroke-width="3"/>
+      <circle cx="60" cy="60" r="5" fill="${color}"/>
+      <circle cx="140" cy="60" r="5" fill="${color}"/>
+      <circle cx="60" cy="140" r="5" fill="${color}"/>
+      <circle cx="140" cy="140" r="5" fill="${color}"/>
+    </svg>`,
+    
+    Moon: `<svg class="hexagram-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,50 150,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,50 50,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,150 50,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <polygon points="100,150 150,100 100,100" stroke="${color}" stroke-width="3" fill="none"/>
+      <path d="M 70,80 Q 100,60 130,80" stroke="${color}" stroke-width="3" fill="none"/>
+      <path d="M 70,120 Q 100,140 130,120" stroke="${color}" stroke-width="3" fill="none"/>
+      <circle cx="100" cy="50" r="5" fill="${color}"/>
+      <circle cx="50" cy="100" r="5" fill="${color}"/>
+      <circle cx="150" cy="100" r="5" fill="${color}"/>
+      <circle cx="100" cy="150" r="5" fill="${color}"/>
+    </svg>`
+  };
+  
+  return hexagrams[planet] || hexagrams.Sun;
 }
 
 // ============================================================================
@@ -832,26 +890,9 @@ function calculateHours() {
   try {
     const sunTimes = getSunTimes(today, appState.location.lat, appState.location.lon);
     const planetaryHours = generatePlanetaryHours(dayRuler, sunTimes.sunrise, sunTimes.sunset);
-    
-    appState.hours = planetaryHours.map(h => {
-      const zodiac = getZodiacFromLongitude(planetLongitudes(h.start)[h.planet.name]);
-      let natalMatch = false;
-      
-      if (appState.birthData) {
-        const natalDate = new Date(`${appState.birthData.date}T${appState.birthData.time}`);
-        const natalLongs = planetLongitudes(natalDate);
-        const natalZodiac = getZodiacFromLongitude(natalLongs[h.planet.name]);
-        natalMatch = natalZodiac.name === zodiac.name;
-      }
-      
-      const dignity = getDignity(h.planet.name, zodiac.name);
-      const strength = getHourStrength(h.planet.name, zodiac.name, natalMatch);
-      
-      return { ...h, zodiac, dignity, strength, natalMatch };
-    });
-    
-    appState.currentHour = appState.hours.find(h => now >= h.start && now < h.end);
-    renderCurrentView();
+    appState.hours = planetaryHours;
+    appState.currentHour = planetaryHours.find(h => now >= h.start && now < h.end);
+    renderAll();
   } catch (error) {
     console.error('Error calculating hours:', error);
   }
@@ -861,13 +902,14 @@ function calculateNatalChart() {
   if (!appState.birthData) return;
   
   try {
-    const natalDate = new Date(`${appState.birthData.date}T${appState.birthData.time}`);
-    const longs = planetLongitudes(natalDate);
+    const birthDateTime = new Date(`${appState.birthData.date}T${appState.birthData.time}`);
+    const longs = planetLongitudes(birthDateTime);
     appState.natalChart = Object.keys(longs).map(planet => ({
       planet,
       longitude: longs[planet],
       zodiac: getZodiacFromLongitude(longs[planet])
     }));
+    renderNatal();
   } catch (error) {
     console.error('Error calculating natal chart:', error);
   }
@@ -881,128 +923,119 @@ function formatTime(date) {
   return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
-function getStrengthClass(strength) {
-  if (strength > 2) return 'strength-excellent';
-  if (strength > 0) return 'strength-good';
-  return 'strength-weak';
+function getTimeRemaining(endTime) {
+  const now = new Date();
+  const diff = endTime - now;
+  if (diff < 0) return "Ended";
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}h ${mins}m remaining`;
 }
 
-function getStrengthText(strength) {
-  if (strength > 2) return 'Excellent';
-  if (strength > 0) return 'Good';
-  return 'Weak';
+function renderCurrentDate() {
+  const now = new Date();
+  document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+  });
+}
+
+function renderCurrentHourHeader() {
+  const header = document.getElementById('currentHourHeader');
+  if (!appState.currentHour) {
+    header.innerHTML = '';
+    return;
+  }
+  
+  const h = appState.currentHour;
+  header.innerHTML = `
+    <div class="current-hour-header">
+      <div style="font-size: 0.9rem; color: #b8a080; margin-bottom: 0.5rem;">Current Planetary Hour</div>
+      <div style="font-size: 2rem;" style="color: ${h.planet.color}">
+        ${h.planet.symbol} ${h.planet.name}
+      </div>
+      <div style="font-size: 0.9rem; color: #e0d0b0; margin-top: 0.5rem;">
+        ${formatTime(h.start)} - ${formatTime(h.end)}
+      </div>
+      <div style="font-size: 0.85rem; color: #d4af37; margin-top: 0.25rem;">
+        ${getTimeRemaining(h.end)}
+      </div>
+    </div>
+  `;
+}
+
+function renderDayRuler() {
+  const now = new Date();
+  const dayRuler = DAY_RULERS[now.getDay()];
+  const dayName = DAY_NAMES[now.getDay()];
+  const planet = PLANET_DETAILS[dayRuler];
+  
+  document.getElementById('dayRuler').innerHTML = `
+    Day Ruler: <span style="color: ${planet.color}">${planet.symbol} ${dayRuler}</span> (${dayName}) • ${appState.location.city}
+  `;
 }
 
 function renderHoursView() {
   const grid = document.getElementById('hoursGrid');
   const now = new Date();
   
-  grid.innerHTML = appState.hours.map(h => {
-    const isActive = now >= h.start && now < h.end;
+  grid.innerHTML = appState.hours.map((h, idx) => {
+    const isActive = appState.currentHour && 
+                     h.planet.name === appState.currentHour.planet.name &&
+                     h.start.getTime() === appState.currentHour.start.getTime();
+    
     return `
-      <div class="hour-card ${isActive ? 'active' : ''}" style="border-left-color: ${h.planet.color}">
+      <div class="hour-card ${isActive ? 'active' : ''}" 
+           style="border-left-color: ${h.planet.color}"
+           onclick="showDetail(${idx})">
         <div class="hour-header">
           <div class="planet-info">
             <div class="planet-symbol" style="color: ${h.planet.color}">${h.planet.symbol}</div>
             <div>
               <div class="planet-name" style="color: ${h.planet.color}">${h.planet.name}</div>
               <div class="hour-time">${formatTime(h.start)} - ${formatTime(h.end)}</div>
+              <div style="font-size: 0.85rem; color: #b8a080;">${h.isDayHour ? '☀️ Day' : '🌙 Night'}</div>
             </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 2rem;">${h.zodiac.symbol}</div>
+            <div style="font-size: 0.9rem; color: #e0d0b0;">${h.zodiac.name}</div>
           </div>
         </div>
         <div class="hour-details">
           <div class="detail-row">
-            <span class="detail-label">Zodiac</span>
-            <span>${h.zodiac.symbol} ${h.zodiac.name}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Dignity</span>
+            <span>Dignity</span>
             <span>${h.dignity}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Strength</span>
-            <span class="${getStrengthClass(h.strength)}">${getStrengthText(h.strength)} (${h.strength})</span>
+            <span>Strength</span>
+            <span style="color: ${h.strength > 2 ? '#4ade80' : h.strength > 0 ? '#fbbf24' : '#f87171'}">
+              ${h.strength}
+            </span>
           </div>
         </div>
-        ${h.natalMatch ? '<div class="resonance-badge">★ Natal Resonance</div>' : ''}
+        ${h.natalMatch ? '<div class="badge">⭐ Natal Resonance</div>' : ''}
+        ${isActive ? '<div class="badge" style="background: #d4af37; color: #1a0a2e;">ACTIVE NOW</div>' : ''}
       </div>
     `;
   }).join('');
 }
 
-function renderCurrentHour() {
-  const display = document.getElementById('currentHourDisplay');
-  
-  if (!appState.currentHour) {
-    display.innerHTML = '<p style="color: #b8a080;">No active hour at this moment</p>';
-    return;
-  }
-  
-  const h = appState.currentHour;
-  const theme = PLANET_THEMES[h.planet.name];
-  const corr = PLANET_CORRESPONDENCES[h.planet.name];
-  
-  display.innerHTML = `
-    <div class="current-planet-symbol" style="color: ${h.planet.color}">${h.planet.symbol}</div>
-    <div class="current-planet-name" style="color: ${h.planet.color}">${h.planet.name}</div>
-    <div style="font-size: 1.2rem; color: #b8a080; margin-bottom: 0.5rem;">
-      ${formatTime(h.start)} - ${formatTime(h.end)}
-    </div>
-    <div style="font-size: 1.5rem; margin-bottom: 1rem;">
-      ${h.zodiac.symbol} ${h.zodiac.name}
-    </div>
-    
-    <div class="guidance-section">
-      <div class="guidance-item">
-        <div class="guidance-title">Archangel</div>
-        <div>${corr.archangel}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Intelligence & Spirit</div>
-        <div>${corr.intelligence} / ${corr.spirit}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Primary Current</div>
-        <div>${theme.action}</div>
-        <div style="color: #b8a080; margin-top: 0.5rem;">Expression is ${SIGN_MODIFIERS[h.zodiac.name]}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Suitable Works</div>
-        <div>${theme.suitable}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Caution</div>
-        <div style="color: #f87171;">${theme.caution}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Magical Correspondences</div>
-        <div><strong>Metal:</strong> ${corr.metal}</div>
-        <div><strong>Incense:</strong> ${corr.incense}</div>
-        <div><strong>Crystals:</strong> ${corr.crystals}</div>
-      </div>
-      <div class="guidance-item">
-        <div class="guidance-title">Dignity & Strength</div>
-        <div>${h.dignity} - Strength: ${h.strength}</div>
-      </div>
-      ${h.natalMatch ? '<div class="resonance-badge" style="margin-top: 1rem;">★ This hour resonates with your natal chart</div>' : ''}
-    </div>
-  `;
-}
-
 function renderElectional() {
   const grid = document.getElementById('electionalGrid');
-  const now = new Date();
+  const optimal = appState.hours.filter(h => h.strength > 1 || h.natalMatch);
   
-  grid.innerHTML = appState.hours.map(h => {
-    const isActive = now >= h.start && now < h.end;
+  grid.innerHTML = appState.hours.map((h, idx) => {
+    const isActive = appState.currentHour && 
+                     h.planet.name === appState.currentHour.planet.name &&
+                     h.start.getTime() === appState.currentHour.start.getTime();
+    const isOptimal = h.strength > 1 || h.natalMatch;
     const opacity = Math.min(0.9, 0.2 + h.strength / 4);
-    let qualityClass = 'fair';
-    if (h.strength > 2) qualityClass = 'excellent';
-    else if (h.strength > 0) qualityClass = 'good';
-    else if (h.strength < 0) qualityClass = 'weak';
     
     return `
-      <div class="hour-card ${isActive ? 'active' : ''}" style="border-left-color: ${h.planet.color}; background: rgba(26,10,46,${opacity * 0.6})">
+      <div class="hour-card ${isActive ? 'active' : ''}" 
+           style="border-left-color: ${h.planet.color}; opacity: ${opacity}; ${isOptimal ? 'border-right: 4px solid #4ade80;' : ''}"
+           onclick="showDetail(${idx})">
         <div class="hour-header">
           <div class="planet-info">
             <div class="planet-symbol" style="color: ${h.planet.color}">${h.planet.symbol}</div>
@@ -1012,9 +1045,12 @@ function renderElectional() {
             </div>
           </div>
           <div style="text-align: right;">
-            <div>${h.zodiac.symbol} ${h.zodiac.name}</div>
-            <div class="electional-indicator ${qualityClass}">${getStrengthText(h.strength)}</div>
-            ${h.natalMatch ? '<div class="electional-indicator" style="background: #581c87; color: #e9d5ff; margin-top: 0.25rem;">Resonant</div>' : ''}
+            <div style="font-size: 1.5rem;">${h.zodiac.symbol} ${h.zodiac.name}</div>
+            <div style="font-size: 0.8rem; margin-top: 0.25rem;">
+              ${h.dignity} • Str: ${h.strength}
+            </div>
+            ${h.natalMatch ? '<div class="badge" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">⭐ Resonant</div>' : ''}
+            ${isOptimal ? '<div class="badge" style="background: #4ade80; color: #000; font-size: 0.7rem; padding: 0.2rem 0.5rem; margin-top: 0.25rem;">OPTIMAL</div>' : ''}
           </div>
         </div>
       </div>
@@ -1026,71 +1062,236 @@ function renderNatal() {
   const grid = document.getElementById('natalGrid');
   
   if (!appState.natalChart) {
-    grid.innerHTML = '<div style="text-align: center; color: #b8a080; padding: 2rem;">No birth data set. Go to Settings to enter your birth information.</div>';
+    grid.innerHTML = `
+      <div style="text-align: center; padding: 3rem; color: #b8a080;">
+        <p style="font-size: 1.2rem; margin-bottom: 1rem;">No birth data set</p>
+        <button class="primary-btn" style="max-width: 300px; margin: 0 auto;" onclick="showView('settings')">
+          Add Birth Data in Settings
+        </button>
+      </div>
+    `;
     return;
   }
   
-  grid.innerHTML = appState.natalChart.map(item => `
-    <div class="natal-card">
-      <div class="natal-planet">
-        <div class="natal-planet-symbol" style="color: ${PLANET_DETAILS[item.planet].color}">
-          ${PLANET_DETAILS[item.planet].symbol}
-        </div>
-        <div>
-          <div style="font-weight: bold; font-size: 1.1rem;">${item.planet}</div>
-          <div style="color: #b8a080; font-size: 0.85rem;">${item.longitude.toFixed(2)}°</div>
-        </div>
+  grid.innerHTML = `
+    ${appState.birthData ? `
+      <div style="text-align: center; color: #b8a080; margin-bottom: 2rem;">
+        Born ${appState.birthData.date} at ${appState.birthData.time}<br>
+        ${appState.birthData.location || ''}
       </div>
-      <div class="natal-zodiac">
-        <div class="natal-zodiac-symbol">${item.zodiac.symbol}</div>
-        <div style="font-size: 0.9rem;">${item.zodiac.name}</div>
-      </div>
+    ` : ''}
+    <div style="display: grid; gap: 1rem;">
+      ${appState.natalChart.map(item => `
+        <div class="hour-card" style="border-left-color: ${PLANET_DETAILS[item.planet].color}">
+          <div class="hour-header">
+            <div class="planet-info">
+              <div class="planet-symbol" style="color: ${PLANET_DETAILS[item.planet].color}">
+                ${PLANET_DETAILS[item.planet].symbol}
+              </div>
+              <div>
+                <div class="planet-name" style="color: ${PLANET_DETAILS[item.planet].color}">
+                  ${item.planet}
+                </div>
+                <div class="hour-time">${item.longitude.toFixed(2)}°</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 2.5rem;">${item.zodiac.symbol}</div>
+              <div style="font-size: 1.2rem; color: #e0d0b0;">${item.zodiac.name}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
     </div>
-  `).join('');
+  `;
 }
 
-function renderLegend() {
-  const table = document.getElementById('legendTable');
+function renderCorrespondences() {
+  const table = document.getElementById('corrTable');
   
-  table.innerHTML = Object.entries(PLANET_CORRESPONDENCES).map(([planet, data]) => `
-    <tr>
-      <td><span style="color: ${PLANET_DETAILS[planet].color}">${PLANET_DETAILS[planet].symbol} ${planet}</span></td>
-      <td>${data.archangel}</td>
-      <td>${data.intelligence}</td>
-      <td>${data.spirit}</td>
-      <td>${data.metal}</td>
-      <td>${data.incense}</td>
-      <td>${data.crystals}</td>
-    </tr>
-  `).join('');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Planet</th>
+        <th>Archangel</th>
+        <th>Intelligence</th>
+        <th>Spirit</th>
+        <th>Metal</th>
+        <th>Suitable For</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${Object.entries(CORRESPONDENCES).map(([planet, data]) => `
+        <tr>
+          <td><span style="color: ${PLANET_DETAILS[planet].color}">${PLANET_DETAILS[planet].symbol} ${planet}</span></td>
+          <td>${data.archangel}</td>
+          <td>${data.intelligence}</td>
+          <td>${data.spirit}</td>
+          <td>${data.metal}</td>
+          <td>${data.suitable}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
 }
 
-function renderCurrentView() {
+function renderAll() {
+  renderCurrentDate();
+  renderCurrentHourHeader();
+  renderDayRuler();
+  
   const activeView = document.querySelector('.view-section.active').id;
-  
-  document.getElementById('locationDisplay').textContent = appState.location.city;
-  
-  switch(activeView) {
-    case 'hours':
-      renderHoursView();
-      break;
-    case 'current':
-      renderCurrentHour();
-      break;
-    case 'electional':
-      renderElectional();
-      break;
-    case 'natal':
-      renderNatal();
-      break;
-    case 'legend':
-      renderLegend();
-      break;
-  }
+  if (activeView === 'hours') renderHoursView();
+  if (activeView === 'electional') renderElectional();
+  if (activeView === 'natal') renderNatal();
+  if (activeView === 'correspondences') renderCorrespondences();
 }
 
 // ============================================================================
-// UI INTERACTIONS
+// MODAL FUNCTIONS
+// ============================================================================
+
+function showDetail(idx) {
+  const hour = appState.hours[idx];
+  const corr = CORRESPONDENCES[hour.planet.name];
+  
+  document.getElementById('detailContent').innerHTML = `
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="font-size: 6rem; color: ${hour.planet.color}">${hour.planet.symbol}</div>
+      <h2 style="font-size: 2.5rem; color: ${hour.planet.color}; margin: 1rem 0;">
+        Hour of ${hour.planet.name}
+      </h2>
+      <div style="font-size: 1.2rem; color: #e0d0b0;">
+        ${formatTime(hour.start)} - ${formatTime(hour.end)}
+      </div>
+      ${appState.currentHour && hour.start.getTime() === appState.currentHour.start.getTime() ? `
+        <div style="font-size: 1rem; color: #d4af37; margin-top: 0.5rem;">
+          ${getTimeRemaining(hour.end)}
+        </div>
+      ` : ''}
+      <div style="font-size: 1.5rem; margin-top: 1rem;">
+        ${hour.zodiac.symbol} ${hour.zodiac.name}
+      </div>
+      <div style="font-size: 0.9rem; color: #b8a080; margin-top: 0.5rem;">
+        ${hour.isDayHour ? '☀️ Day Hour (Sunrise to Sunset)' : '🌙 Night Hour (Sunset to Sunrise)'}
+      </div>
+      <div style="margin-top: 1rem;">
+        <span class="badge">Dignity: ${hour.dignity}</span>
+        <span class="badge" style="background: ${hour.strength > 2 ? '#4ade80' : hour.strength > 0 ? '#fbbf24' : '#f87171'}">
+          Strength: ${hour.strength}
+        </span>
+        ${hour.natalMatch ? '<span class="badge" style="background: #ec4899;">⭐ Natal Resonance</span>' : ''}
+      </div>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Planetary Power</h3>
+      <p><strong>Suitable For:</strong> ${corr.suitable}</p>
+      <p><strong>Keywords:</strong> ${corr.keywords}</p>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Sacred Correspondences</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div><strong>Archangel:</strong> ${corr.archangel}</div>
+        <div><strong>Intelligence:</strong> ${corr.intelligence}</div>
+        <div><strong>Spirit:</strong> ${corr.spirit}</div>
+        <div><strong>Metal:</strong> ${corr.metal}</div>
+        <div style="grid-column: 1 / -1;"><strong>Incense:</strong> ${corr.incense}</div>
+        <div style="grid-column: 1 / -1;"><strong>Crystals:</strong> ${corr.crystals}</div>
+      </div>
+    </div>
+
+    <button class="primary-btn" onclick="showRitual(${idx})">
+      ⭐ Begin Ritual
+    </button>
+  `;
+  
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+function showRitual(idx) {
+  closeDetail();
+  const hour = appState.hours[idx];
+  const corr = CORRESPONDENCES[hour.planet.name];
+  const hymn = HYMNS[hour.planet.name];
+  
+  document.getElementById('ritualContent').innerHTML = `
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="font-size: 5rem; color: ${hour.planet.color}">${hour.planet.symbol}</div>
+      <h2 style="font-size: 2rem; color: ${hour.planet.color};">
+        Ritual of ${hour.planet.name}
+      </h2>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Invoking Hexagram of ${hour.planet.name}</h3>
+      <div class="hexagram-container">
+        ${getHexagramSVG(hour.planet.name, 'invoke')}
+      </div>
+      <div style="margin-top: 1rem;">
+        <p><strong style="color: #d4af37;">To Invoke ${hour.planet.name}:</strong></p>
+        <ul style="margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
+          <li>Face the appropriate direction</li>
+          <li>Draw the first triangle CLOCKWISE from ${hour.planet.name}'s point</li>
+          <li>Draw the second triangle CLOCKWISE from the opposite angle</li>
+          <li>Vibrate the Divine Names while tracing</li>
+        </ul>
+        <p style="margin-top: 1rem;"><strong style="color: #d4af37;">To Banish:</strong></p>
+        <ul style="margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;">
+          <li>Draw both triangles COUNTERCLOCKWISE</li>
+          <li>Begin from the same point but reverse the direction</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Divine Names & Powers</h3>
+      <p><strong>Divine Names:</strong> ${corr.divineNames}</p>
+      <p><strong>Intelligence:</strong> ${corr.intelligence}</p>
+      <p><strong>Spirit:</strong> ${corr.spirit}</p>
+      <p><strong>Keywords:</strong> ${corr.keywords}</p>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Orphic Invocation to ${hour.planet.name}</h3>
+      <div class="hymn-text">${hymn}</div>
+    </div>
+
+    <div class="ritual-section">
+      <h3>Fumigation & Tools</h3>
+      <p><strong>Metal:</strong> ${corr.metal}</p>
+      <p><strong>Incense:</strong> ${corr.incense}</p>
+      <p><strong>Crystals:</strong> ${corr.crystals}</p>
+    </div>
+
+    <button class="primary-btn" onclick="startScrying()">
+      👁️ Begin Scrying
+    </button>
+  `;
+  
+  document.getElementById('ritualModal').classList.add('active');
+}
+
+function closeRitual() {
+  document.getElementById('ritualModal').classList.remove('active');
+}
+
+function startScrying() {
+  closeRitual();
+  document.getElementById('scryingScreen').classList.add('active');
+}
+
+function exitScrying() {
+  document.getElementById('scryingScreen').classList.remove('active');
+}
+
+// ============================================================================
+// VIEW MANAGEMENT
 // ============================================================================
 
 function showView(viewName) {
@@ -1100,19 +1301,27 @@ function showView(viewName) {
   document.getElementById(viewName).classList.add('active');
   document.querySelector(`nav button[data-view="${viewName}"]`).classList.add('active');
   
-  renderCurrentView();
+  renderAll();
 }
+
+// ============================================================================
+// SETTINGS & LOCATION
+// ============================================================================
 
 async function updateLocation() {
   const input = document.getElementById('locationInput').value.trim();
-  if (!input) return;
+  if (!input) {
+    alert('Please enter a location');
+    return;
+  }
   
-  const query = input.includes(',') && input.split(',').length > 2 ? input : `${input}, USA`;
+  const query = input.includes(',') && input.split(',').length > 2 ? input : 
+                input.includes(',') ? `${input}, USA` : `${input}, USA`;
   
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-      { headers: { "User-Agent": "PlanetaryHoursApp/2.0" } }
+      { headers: { "User-Agent": "PlanetaryHoursApp/3.0" } }
     );
     
     const data = await response.json();
@@ -1122,7 +1331,6 @@ async function updateLocation() {
         lon: parseFloat(data[0].lon),
         city: input
       };
-      saveToStorage();
       calculateHours();
       alert('Location updated successfully!');
     } else {
@@ -1130,21 +1338,44 @@ async function updateLocation() {
     }
   } catch (error) {
     console.error('Error updating location:', error);
-    alert('Error retrieving location. Check your internet connection.');
+    alert('Error connecting to location service.');
   }
 }
 
-function saveBirthData() {
+async function saveBirthData() {
   const date = document.getElementById('birthDate').value;
   const time = document.getElementById('birthTime').value;
+  const location = document.getElementById('birthLocation').value.trim();
   
   if (!date || !time) {
-    alert('Please enter both date and time');
+    alert('Please enter birth date and time');
     return;
   }
   
-  appState.birthData = { date, time };
-  saveToStorage();
+  if (location) {
+    const query = location.includes(',') && location.split(',').length > 2 ? location : 
+                  location.includes(',') ? `${location}, USA` : `${location}, USA`;
+    
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+        { headers: { "User-Agent": "PlanetaryHoursApp/3.0" } }
+      );
+      
+      const data = await response.json();
+      if (data && data.length > 0) {
+        appState.birthLocation = {
+          lat: parseFloat(data[0].lat),
+          lon: parseFloat(data[0].lon),
+          city: location
+        };
+      }
+    } catch (error) {
+      console.error('Error geocoding birth location:', error);
+    }
+  }
+  
+  appState.birthData = { date, time, location };
   calculateNatalChart();
   calculateHours();
   alert('Birth data saved successfully!');
@@ -1155,29 +1386,26 @@ function saveBirthData() {
 // ============================================================================
 
 function init() {
-  loadFromStorage();
-  
-  if (appState.birthData) {
-    document.getElementById('birthDate').value = appState.birthData.date;
-    document.getElementById('birthTime').value = appState.birthData.time;
-  }
-  
+  // Set default input values
   document.getElementById('locationInput').value = appState.location.city;
   
+  // Calculate initial hours
   calculateHours();
-  renderLegend();
+  renderCorrespondences();
   
-  setInterval(calculateHours, 60000);
+  // Update every minute
+  setInterval(() => {
+    calculateHours();
+  }, 60000);
 }
 
-// Start the app
-init();
-
-// Service Worker for offline support
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+// Start the app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
 </script>
 
 </body>
-</html
+</html>
