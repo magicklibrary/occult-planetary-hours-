@@ -1,8 +1,28 @@
 {
-  "name": "Planetary Hours",
-  "short_name": "PlanetaryHours",
-  "start_url": ".",
+  "name": "Planetary Hours - Occult Timekeeping",
+  "short_name": "Planetary Hours",
+  "description": "Calculate planetary hours for ceremonial magic and electional astrology",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000"
+  "background_color": "#0a0a0a",
+  "theme_color": "#1a0a2e",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "education", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr"
 }
