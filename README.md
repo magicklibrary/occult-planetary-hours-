@@ -2,7 +2,7 @@
 
 A comprehensive web application for calculating and working with planetary hours according to traditional Western occult practices. This tool provides real-time astronomical calculations, ritual guidance, and electional timing for ceremonial magicians.
 
-**Live Application:** https://magicklibrary.github.io/occult-planetary-hours-/
+**Live Application:** https://magicklibrary.github.io/planetary-hours/
 
 ## Overview
 
